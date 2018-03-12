@@ -67,7 +67,8 @@ module.exports.findAll = (req, res) => {
 
 module.exports.findOne = (req, res) => {
   // Find a single events with a eventId
-  Event.findById(req.params.eventId) 
+  Event.findById(req.params.eventId)
+    .populate('actor') 
     .then(event => {
       if(!event) {
         return res.status(404).send({message: "Event not found with id " + req.params.eventId});            
