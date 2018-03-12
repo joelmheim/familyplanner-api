@@ -1,3 +1,4 @@
+const mongoose = require('mongoose');
 const Event = require('../models/event.model.js');
 const Person = require('../models/person.model.js');
 
@@ -40,13 +41,23 @@ module.exports.create = (req, res) => {
   Person.findById(req.body.actor)
         .then(person => {
           event.actor = person._id;
-          save(res, event);
+          event.save()
+          .then((saved) => {
+            console.log('Event saved: ', saved);
+            res.send({
+              message: 'Event saved successfully!'
+            });
+          })
+          .catch((error) => {
+            console.log(error);
+            res.status(500).send({
+              message: 'There was an error saving this event.'
+            });
+          });
         })
         .catch(err => { 
           console.log("No person found with id: " + req.body.actor);
-          const noOne = new Person({ _id: new mongoose.Types.ObjectId(), name: "Not found", email: "Not Found" })
-          event.actor =  noOne._id;
-          save(res, event);
+          res.status(500).send({ message: 'Cannot save event without actor.'} );
         });
   
 
