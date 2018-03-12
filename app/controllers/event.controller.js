@@ -33,30 +33,30 @@ module.exports.create = (req, res) => {
   }
 
   const event = new Event({
-    start: Date.parse(req.body.start),
-    end: Date.parse(req.body.end),
+    start: new Date(req.body.start),
+    end: new Date(req.body.end),
     activity: req.body.activity
   });
 
   Person.findById(req.body.actor)
         .then(person => {
           event.actor = person._id;
-          event.save()
-          .then((saved) => {
-            console.log('Event saved: ', saved);
-            res.send({
-              message: 'Event saved successfully!'
-            });
-          })
-          .catch((error) => {
-            console.log(error);
-            res.status(500).send({
-              message: 'There was an error saving this event.'
-            });
-          });
+
+          if (req.body.helper) {
+            Person.findById(req.body.helper)
+                  .then(person => {
+                    event.helper = person._id;
+                    save(res, event);
+                  })
+                  .catch(err => {
+                    console.log("Helper not found with id: " + req.body.helper);
+                  });
+          } else {
+            save(res, event);
+          }
         })
         .catch(err => { 
-          console.log("No person found with id: " + req.body.actor);
+          console.log("Actor not found with id: " + req.body.actor);
           res.status(500).send({ message: 'Cannot save event without actor.'} );
         });
   
@@ -67,6 +67,7 @@ module.exports.findAll = (req, res) => {
   // Retrieve and return all events from the database.
   Event.find()
     .populate('actor')
+    .populate('helper')
     .then(events => {
       res.send(events);
     })
@@ -80,7 +81,8 @@ module.exports.findAll = (req, res) => {
 module.exports.findOne = (req, res) => {
   // Find a single events with a eventId
   Event.findById(req.params.eventId)
-    .populate('actor') 
+    .populate('actor')
+    .populate('helper') 
     .then(event => {
       if(!event) {
         return res.status(404).send({message: "Event not found with id " + req.params.eventId});            
