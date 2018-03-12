@@ -39,13 +39,13 @@ module.exports.create = (req, res) => {
 
   Person.findById(req.body.actor)
         .then(person => {
-          console.log("Person found: " + person.name);
-          event.actor = person;
+          event.actor = person._id;
           save(res, event);
         })
         .catch(err => { 
           console.log("No person found with id: " + req.body.actor);
-          event.actor =  new Person({ name: "Not found", email: "Not Found" });
+          const noOne = new Person({ _id: new mongoose.Types.ObjectId(), name: "Not found", email: "Not Found" })
+          event.actor =  noOne._id;
           save(res, event);
         });
   
@@ -55,6 +55,7 @@ module.exports.create = (req, res) => {
 module.exports.findAll = (req, res) => {
   // Retrieve and return all events from the database.
   Event.find()
+    .populate('actor')
     .then(events => {
       res.send(events);
     })
@@ -115,7 +116,7 @@ module.exports.update = (req, res) => {
 
 module.exports.delete = (req, res) => {
   // Delete an event with the specified eventId in the request
-  Person.findByIdAndRemove(req.params.eventId)
+  Event.findByIdAndRemove(req.params.eventId)
     .then(event => {
       if(!event) {
         return res.status(404).send({message: "Event not found with id " + req.params.eventId});
