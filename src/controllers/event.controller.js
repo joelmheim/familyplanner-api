@@ -39,7 +39,7 @@ export function create(req, res) {
       console.log('Event create, found person: ', person);
       event.actor = person._id;
 
-      if (req.body.helper) {
+      if (req.body.helper && req.body.helper != {}) {
         Person.findById(req.body.helper)
           .then(person => {
             event.helper = person._id;
