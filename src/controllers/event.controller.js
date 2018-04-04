@@ -55,7 +55,7 @@ export function create(req, res) {
     .catch(err => { 
       console.log('Actor not found with id: ' + req.body.actor + err);
       res.status(500).send({ message: 'Cannot save event without actor.'} );
-    });
+    }); 
 }
 
 export function findAll(req, res) {
@@ -94,10 +94,10 @@ export function update(req, res) {
       if (!event) {
         return res.status(404).send({message: 'Event not found with id ' + req.params.eventId});
       }
-      Person.findById(req.body.event.actor)
+      Person.findById(req.body.actor)
         .then(person => {
           event.actor = person._id;
-          if (req.body.helper) {
+          if (req.body.event.helper && req.body.helper != {}) {
             Person.findById(req.body.helper)
               .then(person => {
                 event.helper = person._id;
