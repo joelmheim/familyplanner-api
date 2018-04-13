@@ -77,8 +77,8 @@ app.get('/', (req, res) => {
 
 // Set up routes
 //app.use('/', auth);
-app.use('/', checkJwt, checkScopes, persons);
-app.use('/', checkJwt, checkScopes, events);
+app.use('/', persons);
+app.use('/', events);
 
 // listen for requests
 app.listen(config.port, () => {
